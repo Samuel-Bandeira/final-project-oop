@@ -3,7 +3,7 @@ import javax.swing.JFrame;
 
 public class Main {
 	public static void main(String[] args) {
-		JFrame frame = new screens.Frame();
+		JFrame frame = new luthier.screens.Frame();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setResizable(false);
 		frame.setVisible(true);
