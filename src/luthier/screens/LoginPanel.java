@@ -4,25 +4,52 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import luthier.entities.User;
+import luthier.repositories.interfaces.IUserRepository;
+import luthier.singletons.UserSession;
+
 public class LoginPanel extends CustomPanel {
+	private IUserRepository userRepository; 
+
 	private void handleLogin(JTextField emailField, JPasswordField passwordField) {
 		String email =  emailField.getText();
-		String password = String.valueOf(passwordField.getPassword());
-		System.out.println(email);	
-		System.out.println(password);		
+		String password = String.valueOf(passwordField.getPassword());	
+		Boolean error = false;
+		String message = "Erro(s):\n";
 		
-		navigate("home");
-//		if() {
-//			mainPanelLayout.show(mainPanel, "home");
-//		}
+		if(email.isBlank()) {
+			error = true;
+			message += " - Preencha o email\n";
+		}
+
+		if(password.isBlank()) {
+			error = true;
+			message += " - Preencha a senha\n";
+		} 
+		
+		if(error) {
+			JOptionPane.showMessageDialog(null, message, "Swing Tester", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		User user = userRepository.procurar(email);
+		
+		if(user.password.equals(password)) {	
+			UserSession.getInstance().setLoggedUser(user);
+			navigate("home");
+		} else {
+			JOptionPane.showMessageDialog(null, "Senha inválida", "Swing Tester", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	private void handleRegister() {
@@ -33,9 +60,9 @@ public class LoginPanel extends CustomPanel {
 //		}
 	}
 
-	public LoginPanel(JPanel mainPanel) {
+	public LoginPanel(JPanel mainPanel, IUserRepository userJson) {
 		super(mainPanel);
-
+		this.userRepository = userJson;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		JLabel emailLabel = new JLabel("Email");
@@ -59,7 +86,7 @@ public class LoginPanel extends CustomPanel {
 				handleRegister();
 			}
 		});
-
+		
 		add(emailLabel);
 		add(emailField);
 		add(passwordLabel);

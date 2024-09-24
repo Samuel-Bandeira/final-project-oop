@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-public class CreateOrderPanel extends CustomPanel {
+public class OrdersPanel extends CustomPanel {
 	private boolean initialized = false;
 	
 	public static Object[][] addElementToArray(Object[][] original, Object[] newElement) {
@@ -35,7 +35,7 @@ public class CreateOrderPanel extends CustomPanel {
 			{ "Reparo", "Violão Modelo Z", "Braço", "Cleber Arnaldo" } };
 	}
 
-	public CreateOrderPanel(JPanel mainPanel) {
+	public OrdersPanel(JPanel mainPanel) {
 		super(mainPanel);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		String[] columnNames = new String[] { "Tipo de Serviço", "Instrumentos", "Peças", "Cliente" };
