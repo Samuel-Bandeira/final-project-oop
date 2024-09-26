@@ -1,1 +1,1 @@
-[{"id":0,"name":"asddasd"},{"id":1,"name":"sadsdasd"}]
+[{"id":0,"name":"Guitarra Fender","user":{"id":1,"firstName":"client","lastName":"client","email":"client","password":"samuel","role":"cliente"}},{"id":1,"name":"Instrumento 2","user":{"id":0,"firstName":"admin","lastName":"admin","email":"admin","password":"samuel","role":"luthier"}}]

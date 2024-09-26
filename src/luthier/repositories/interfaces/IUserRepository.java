@@ -1,12 +1,12 @@
 package luthier.repositories.interfaces;
-
 import luthier.entities.User;
 
 public interface IUserRepository {
-	public void inserir(User conta);
-	public void remover(Integer id);
-	public User procurar(String email);
-	public User procurar(Integer id);
-	public User[] listar();
-	public int tamanho();
+	public void add(User conta);
+	public void remove(Integer id);
+	public User find(String email) throws Exception;
+	public User find(Integer id);
+	public User[] list();
+	public User[] listClients();
+	public int size();
 }

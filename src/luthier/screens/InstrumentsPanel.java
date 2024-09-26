@@ -16,16 +16,14 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import luthier.entities.Instrument;
-import luthier.entities.Order;
-import luthier.entities.User;
 import luthier.entities.UserAbstract;
-import luthier.repositories.interfaces.IOrderRepository;
-import luthier.singletons.OrderEdition;
+import luthier.repositories.interfaces.IInstrumentRepository;
+import luthier.singletons.InstrumentEdition;
 import luthier.singletons.UserSession;
 
-public class OrdersPanel extends CustomPanel {
+public class InstrumentsPanel extends CustomPanel {
 	private boolean initialized = false;
-	private IOrderRepository orderRepository;
+	private IInstrumentRepository instrumentsRepository;
 
 	public static Object[][] addElementToArray(Object[][] original, Object[] newElement) {
 		Object[][] newArray = new Object[original.length + 1][];
@@ -41,19 +39,19 @@ public class OrdersPanel extends CustomPanel {
 
 	public Object[][] getTableData() {
 		UserAbstract loggedUser = UserSession.getInstance().getLoggedUser();
-		Order[] orders;
-		if(UserSession.getInstance().getLoggedUser().role.equals("luthier")) {
-			orders = orderRepository.list();
+		Instrument[] instruments;
+		if(UserSession.getInstance().getLoggedUser().role.equals("luthier")) {			
+			instruments = instrumentsRepository.list();
 		} else {
 			System.out.println("user id " + loggedUser.id);
-			orders = orderRepository.list(loggedUser.id);
+			instruments = instrumentsRepository.list(loggedUser.id);
 		}
 		
-		Object[][] objectOrders = new Object[orders.length][];
+		Object[][] objectOrders = new Object[instruments.length][];
 		
-		if(orders.length > 0) {			
-			for (int i = 0; i < orders.length; i++) {
-				Object[] row = { orders[i].id, orders[i].serviceType, orders[i].instrument.name, orders[i].instrumentParts, orders[i].user.firstName, orders[i].status };
+		if(instruments.length > 0) {			
+			for (int i = 0; i < instruments.length; i++) {
+				Object[] row = { instruments[i].id, instruments[i].name, instruments[i].user.firstName };
 				objectOrders[i] = row;
 			}
 		}
@@ -61,24 +59,24 @@ public class OrdersPanel extends CustomPanel {
 		return objectOrders;
 	}
 
-	public OrdersPanel(JPanel mainPanel, IOrderRepository orderRepository) {
+	public InstrumentsPanel(JPanel mainPanel, IInstrumentRepository instrumentsRepository) {
 		super(mainPanel);
-		this.orderRepository = orderRepository;
+		this.instrumentsRepository = instrumentsRepository;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		String[] columnNames = new String[] { "Id", "Tipo de Serviço", "Instrumento", "Peças", "Cliente", "Status" };
+		String[] columnNames = new String[] { "Id", "Instrumento", "Dono" };
 		JTable table = new JTable();
-		JButton editOrderBtn = new JButton("Editar");
+		JButton editInstrumentBtn = new JButton("Editar");
 		JScrollPane scrollPane = new JScrollPane(table);
 		table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
-		JButton addOrderBtn = new JButton("Inserir");
-		addOrderBtn.addActionListener(new ActionListener() {
+		JButton addInstrumentBtn = new JButton("Inserir");
+		addInstrumentBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				navigate("createOrder");
+				navigate("createInstrument");
 			}
 		});
 
-		editOrderBtn.addActionListener(new ActionListener() {
+		editInstrumentBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Integer rowId = table.getSelectedRow();
 
@@ -87,15 +85,16 @@ public class OrdersPanel extends CustomPanel {
 					return;
 				}
 				
+				System.out.println("rowId: " + rowId);
 				Integer id = (Integer) table.getValueAt(rowId, 0);
-                Order order = orderRepository.find(id);
-                OrderEdition.getInstance().setOrderEdition(order);
-                navigate("editOrder");
+                Instrument instrument = instrumentsRepository.find(id);
+                InstrumentEdition.getInstance().setInstrumentEdition(instrument);
+                navigate("editInstrument");
 			}
 		});
 		
-		JButton deleteOrderBtn = new JButton("Excluir");
-		deleteOrderBtn.addActionListener(new ActionListener() {
+		JButton deleteInstrumentBtn = new JButton("Excluir");
+		deleteInstrumentBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Integer rowId = table.getSelectedRow();
 
@@ -105,34 +104,8 @@ public class OrdersPanel extends CustomPanel {
 				}
 				
 				Integer id = (Integer) table.getValueAt(rowId, 0);
-                orderRepository.delete(id);
+				instrumentsRepository.remove(id);
                 ((DefaultTableModel)table.getModel()).removeRow(rowId);
-			}
-		});
-		
-		JButton notificationButton = new JButton("Gerar Notificação");
-		notificationButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Integer rowId = table.getSelectedRow();
-
-				if(rowId < 0) {
-					JOptionPane.showMessageDialog(null, "Selecione uma linha para gerar noficação!", "Swing Tester", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				Integer id = (Integer) table.getValueAt(rowId, 0);
-				Order order = orderRepository.find(id);
-				
-				String notificationString = "O Instrumento " + order.instrument.name + " em nome do cliente "
-						+ order.user.firstName + " " + order.user.lastName + " está " + order.status;
-				
-				if(order.instrumentParts.equals("")) {
-					notificationString += " não necessitou de material peças.";
-				} else {
-					notificationString += " necessitou das seguinte(s) partes: " + order.instrumentParts;
-				}
-				
-				JOptionPane.showMessageDialog(null, notificationString);
 			}
 		});
 
@@ -141,17 +114,14 @@ public class OrdersPanel extends CustomPanel {
 				System.out.println("Screen loaded");
 				initialized = true;
 				table.setModel(new DefaultTableModel(getTableData(), columnNames));
-				
 				if(!UserSession.getInstance().getLoggedUser().role.equals("luthier")) {
-					remove(editOrderBtn);
-					remove(deleteOrderBtn);	
-					remove(notificationButton);
+					remove(editInstrumentBtn);
+					remove(deleteInstrumentBtn);					
 					revalidate();
 					repaint();
 				} else {
-					add(editOrderBtn);
-					add(deleteOrderBtn);	
-					add(notificationButton);
+					add(editInstrumentBtn);
+					add(deleteInstrumentBtn);	
 					revalidate();
 					repaint();
 				}
@@ -173,10 +143,9 @@ public class OrdersPanel extends CustomPanel {
 		});
 
 		add(scrollPane, BorderLayout.CENTER);
-		add(addOrderBtn);
-		add(editOrderBtn);
-		add(deleteOrderBtn);
+		add(addInstrumentBtn);
+		add(editInstrumentBtn);
+		add(deleteInstrumentBtn);
 		add(backButton);
-		add(notificationButton);
 	}
 }

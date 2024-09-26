@@ -6,17 +6,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import luthier.entities.Instrument;
+import luthier.entities.Order;
 import luthier.repositories.interfaces.IInstrumentRepository;
 
 public class InstrumentJson implements IInstrumentRepository {
 	private Gson gson = new Gson();
 	private String pathArquivo = "/Users/samue/eclipse-workspace/Luthier/src/luthier/json/instruments.json";
 
-	private Vector<Instrument> getInstruments() {
+	private Vector<Instrument> getAll() {
 		try {
 			FileReader arquivo = new FileReader(pathArquivo);
 			BufferedReader leitor = new BufferedReader(arquivo);
@@ -46,7 +50,7 @@ public class InstrumentJson implements IInstrumentRepository {
 		return arrayVazio;
 	}
 
-	private void reescreverDb(Vector<Instrument> contas) {		
+	private void rewriteDb(Vector<Instrument> contas) {		
 		String contasJson = gson.toJson(contas);
 
 		try {
@@ -59,15 +63,15 @@ public class InstrumentJson implements IInstrumentRepository {
 		}
 	}
 	
-	public void inserir(Instrument instrument) {
-		Vector<Instrument> contas = getInstruments();
-		instrument.setId(contas.size());
-		contas.add(instrument);
-		reescreverDb(contas);
+	public void add(Instrument instrument) {
+		Vector<Instrument> instruments = getAll();
+		instrument.setId(instruments.size());
+		instruments.add(instrument);
+		rewriteDb(instruments);
 	}
 
-	public Instrument procurar(String name) {
-		Vector<Instrument> instruments = getInstruments();
+	public Instrument find(String name) {
+		Vector<Instrument> instruments = getAll();
 
 		for (Instrument instrument : instruments) {
 			if (instrument.name.equals(name)) {
@@ -77,31 +81,57 @@ public class InstrumentJson implements IInstrumentRepository {
 
 		return null;
 	}
+	
+	public Instrument find(Integer id) {
+		Vector<Instrument> instruments = getAll();
 
-	public void remover(String id) {
-		Vector<Instrument> contas = getInstruments();
+		for (Instrument instrument : instruments) {
+			if (instrument.id.equals(id)) {
+				return instrument;
+			}
+		}
+
+		return null;
+	}
+
+	public void remove(Integer id) {
+		Vector<Instrument> instruments = getAll();
 		
-		Instrument conta = procurar(id);
+		Instrument instrument = find(id);
 		int index = -1;
 
-		if (conta != null) {
-			for (int i = 0; i < contas.size(); i++) {
-				if (contas.get(i).id.equals(id)) {
+		if (instrument != null) {
+			for (int i = 0; i < instruments.size(); i++) {
+				if (instruments.get(i).id.equals(id)) {
 					index = i;
 					break;
 				}
 			}
 			
 			if(index >= 0) {
-				contas.remove(index);
+				instruments.remove(index);
 			}
 			
-			reescreverDb(contas);
+			rewriteDb(instruments);
 		}
 	}
+	
+	public void edit(Integer id, Instrument instrument) {
+		Vector<Instrument> instruments = getAll();
+		Integer index = -1;
 
-	public Instrument[] listar() {
-		Vector<Instrument> instruments = getInstruments();
+		for (int i = 0; i < instruments.size(); i++) {
+			if (instruments.get(i).id.equals(id)) {
+				index = i;
+			}
+		}
+
+		instruments.set(index, instrument);
+		rewriteDb(instruments);
+	}
+
+	public Instrument[] list() {
+		Vector<Instrument> instruments = getAll();
 		Instrument[] instrumentsArray = new Instrument[instruments.size()];
 		
 		for(int i = 0; i < instruments.size(); i++) {
@@ -110,9 +140,23 @@ public class InstrumentJson implements IInstrumentRepository {
 		
 		return instrumentsArray;
 	}
+	
+	public Instrument[] list(Integer userId) {
+		Vector<Instrument> instruments = getAll();
+		List<Instrument> instrumentsFromClient = (List<Instrument>) instruments.stream().filter(instrument -> instrument.user.id.equals(userId))
+				.collect(Collectors.toList());
 
-	public int tamanho() {
-		Vector<Instrument> contas = getInstruments();
+		Instrument[] instrumentsArray = new Instrument[instrumentsFromClient.size()];
+
+		for (int i = 0; i < instrumentsFromClient.size(); i++) {
+			instrumentsArray[i] = instrumentsFromClient.get(i);
+		}
+
+		return instrumentsArray;
+	}
+
+	public int size() {
+		Vector<Instrument> contas = getAll();
 		return contas.size();
 	}
 }

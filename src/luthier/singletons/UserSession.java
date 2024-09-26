@@ -1,10 +1,9 @@
 package luthier.singletons;
-
-import luthier.entities.User;
+import luthier.entities.UserAbstract;
 
 public class UserSession {
     private static UserSession instance;
-    private User loggedUser;
+    private UserAbstract loggedUser;
 
     private UserSession() { }
 
@@ -15,11 +14,11 @@ public class UserSession {
         return instance;
     }
 
-    public User getLoggedUser() {
+    public UserAbstract getLoggedUser() {
         return loggedUser;
     }
 
-    public void setLoggedUser(User user) {
+    public void setLoggedUser(UserAbstract user) {
         this.loggedUser = user;
     }
 }

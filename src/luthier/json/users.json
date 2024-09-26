@@ -1,1 +1,1 @@
-[{"id":0,"firstName":"sam","lastName":"bandeira","email":"admin","password":"admin","role":"luthier"}]
+[{"id":0,"firstName":"admin","lastName":"admin","email":"admin","password":"samuel","role":"luthier"},{"id":1,"firstName":"client","lastName":"client","email":"client","password":"samuel","role":"cliente"}]

@@ -6,12 +6,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import luthier.entities.Order;
 import luthier.entities.User;
+import luthier.entities.UserLuthier;
 import luthier.repositories.interfaces.IUserRepository;
 
 public class UserJson implements IUserRepository {
@@ -30,8 +34,8 @@ public class UserJson implements IUserRepository {
 			}
 			
 			leitor.close();
-
-			Type users = new TypeToken<Vector<User>>() {
+			
+			Type users = new TypeToken<Vector<UserLuthier>>() {
 			}.getType();
 
 			Vector<User> contas = gson.fromJson(conteudo, users);
@@ -48,7 +52,7 @@ public class UserJson implements IUserRepository {
 		return arrayVazio;
 	}
 
-	private void reescreverDb(Vector<User> contas) {		
+	private void rewriteDb(Vector<User> contas) {		
 		String usersJson = gson.toJson(contas);
 
 		try {
@@ -61,14 +65,15 @@ public class UserJson implements IUserRepository {
 		}
 	}
 	
-	public void inserir(User instrument) {
+	public void add(User user) {
 		Vector<User> users = getAll();
-		instrument.setId(users.size());
-		users.add(instrument);
-		reescreverDb(users);
+		user.setId(users.size());
+		users.add(user);
+		System.out.println("Users " + users.get(0).name);
+		rewriteDb(users);
 	}
 
-	public User procurar(Integer id) {
+	public User find(Integer id) {
 		Vector<User> users = getAll();
 
 		for (User user : users) {
@@ -80,22 +85,22 @@ public class UserJson implements IUserRepository {
 		return null;
 	}
 	
-	public User procurar(String email) {
+	public User find(String email) throws Exception {
 		Vector<User> users = getAll();
+		
 		for (User user : users) {
-			System.out.println(user.email);
 			if (user.email.equals(email)) {
 				return user;
 			}
 		}
-
-		return null;
+		
+		throw new Exception("Nenhum usuário com esse email encontrado");
 	}
 
-	public void remover(Integer id) {
+	public void remove(Integer id) {
 		Vector<User> users = getAll();
 		
-		User conta = procurar(id);
+		User conta = find(id);
 		int index = -1;
 
 		if (conta != null) {
@@ -110,11 +115,11 @@ public class UserJson implements IUserRepository {
 				users.remove(index);
 			}
 			
-			reescreverDb(users);
+			rewriteDb(users);
 		}
 	}
 
-	public User[] listar() {
+	public User[] list() {
 		Vector<User> users = getAll();
 		User[] instrumentsArray = new User[users.size()];
 		
@@ -124,8 +129,22 @@ public class UserJson implements IUserRepository {
 		
 		return instrumentsArray;
 	}
+	
+	public User[] listClients() {
+		Vector<User> users = getAll();
+		
+		List<User> clientUsers = (List<User>) users.stream().filter(user -> user.role.equals("cliente"))
+				.collect(Collectors.toList());
+		User[] clientsArray = new User[clientUsers.size()];
+		
+		for(int i = 0; i < clientUsers.size(); i++) {
+			clientsArray[i] = clientUsers.get(i);
+		}
+		
+		return clientsArray;
+	}
 
-	public int tamanho() {
+	public int size() {
 		Vector<User> users = getAll();
 		return users.size();
 	}

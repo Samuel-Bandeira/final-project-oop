@@ -1,0 +1,1 @@
+[{"id":0,"user":{"id":1,"firstName":"client","lastName":"client","email":"client","password":"samuel","role":"cliente"},"instrument":{"id":0,"name":"Guitarra Fender","user":{"id":1,"firstName":"client","lastName":"client","email":"client","password":"samuel","role":"cliente"}},"instrumentParts":"","serviceType":"Serviço 1","status":"Recebido"}]

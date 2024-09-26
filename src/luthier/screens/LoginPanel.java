@@ -1,10 +1,8 @@
 package luthier.screens;
 
-import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -14,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import luthier.entities.User;
+import luthier.entities.UserAbstract;
 import luthier.repositories.interfaces.IUserRepository;
 import luthier.singletons.UserSession;
 
@@ -42,22 +40,25 @@ public class LoginPanel extends CustomPanel {
 			return;
 		}
 		
-		User user = userRepository.procurar(email);
-		
-		if(user.password.equals(password)) {	
-			UserSession.getInstance().setLoggedUser(user);
-			navigate("home");
-		} else {
-			JOptionPane.showMessageDialog(null, "Senha inválida", "Swing Tester", JOptionPane.ERROR_MESSAGE);
+		try {			
+			UserAbstract user = userRepository.find(email);
+			
+			if(user != null) {
+				if(user.password.equals(password)) {	
+					UserSession.getInstance().setLoggedUser(user);
+					navigate("home");
+				} else {
+					JOptionPane.showMessageDialog(null, "Senha inválida", "Swing Tester", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} catch(Exception E) {
+			JOptionPane.showMessageDialog(null, E.getMessage(), "Swing Tester", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 	}
 	
 	private void handleRegister() {
-		System.out.println("helloaa");			
 		navigate("register");
-//		if() {
-//			mainPanelLayout.show(mainPanel, "home");
-//		}
 	}
 
 	public LoginPanel(JPanel mainPanel, IUserRepository userJson) {

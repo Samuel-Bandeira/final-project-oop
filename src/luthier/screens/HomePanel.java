@@ -7,10 +7,7 @@ import java.awt.event.ComponentEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.table.DefaultTableModel;
-
-import luthier.entities.User;
+import luthier.entities.UserAbstract;
 import luthier.singletons.UserSession;
 
 public class HomePanel extends CustomPanel {
@@ -39,21 +36,36 @@ public class HomePanel extends CustomPanel {
 		instrumentsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				navigate("createInstrument");
+				navigate("instruments");
 			}
 		});
 		JButton notificationsButton = new JButton("Notificações");
+		
+		JButton logoutButton = new JButton("Sair");
+		logoutButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				UserSession.getInstance().setLoggedUser(null);
+				navigate("login");
+			}
+		});
 		
 		this.addComponentListener(new ComponentAdapter() {
 			public void componentShown(ComponentEvent e) {
 				System.out.println("Home screen loaded");
 				initialized = true;
-				User user = UserSession.getInstance().getLoggedUser();
+				UserAbstract user = UserSession.getInstance().getLoggedUser();
+				System.out.println("logged user " + user.firstName);
 				add(createOrderButton);
 			    if(!user.role.equals("luthier")) {
 			    	remove(clientsButton);
-			    	remove(notificationsButton);
+//			    	remove(notificationsButton);
 			    	revalidate();
+			    	repaint();
+			    } else {
+			    	add(clientsButton);
+//				    add(notificationsButton);
+				    revalidate();
 			    	repaint();
 			    }
 			}
@@ -66,8 +78,7 @@ public class HomePanel extends CustomPanel {
 		});
 		
 		add(createOrderButton);
-    	add(clientsButton);
 	    add(instrumentsButton);
-	    add(notificationsButton);
+	    add(logoutButton);
 	}
 }
